@@ -3,9 +3,10 @@ package main
 import (
 	// "fmt"
 	"errors"
-	// "github.com/golang/glog"
+	//"github.com/golang/glog"
 	"github.com/henyouqian/lvdb"
 	"github.com/syndtr/goleveldb/leveldb"
+	"time"
 )
 
 var (
@@ -58,4 +59,29 @@ func (_ *Lvdb) Get(ks [][]byte, vs *[][]byte) error {
 
 	}
 	return nil
+}
+
+func backup() error {
+	dbName := "db." + time.Now().Format(time.RFC3339)
+	backupDb, err := leveldb.OpenFile(dbName, nil)
+	if err != nil {
+		return err
+	}
+	defer backupDb.Close()
+
+	snapshot, err := db.GetSnapshot()
+	if err != nil {
+		return err
+	}
+	defer snapshot.Release()
+
+	iter := snapshot.NewIterator(nil)
+	for iter.Next() {
+		err = backupDb.Put(iter.Key(), iter.Value(), nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	return iter.Error()
 }

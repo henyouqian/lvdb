@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"github.com/golang/glog"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -24,6 +25,8 @@ import (
 // }
 
 func main() {
+	flag.Parse()
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	db, err := InitLvDB()
@@ -32,14 +35,16 @@ func main() {
 	}
 	defer db.Close()
 
+	//backup()
+
 	lvdb := new(Lvdb)
 	rpc.Register(lvdb)
 	rpc.HandleHTTP()
 
 	l, err := net.Listen("tcp", ":1234")
 	if err != nil {
-		fmt.Println("监听失败，端口可能已经被占用")
+		glog.Fatalln("listen err:", err)
 	}
-	fmt.Println("正在监听1234端口")
+	glog.Infoln("listening port:1234")
 	http.Serve(l, nil)
 }
