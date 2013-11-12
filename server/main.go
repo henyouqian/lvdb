@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/henyouqian/lvdb"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -27,13 +26,13 @@ import (
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	db, err := lvDB.InitLvDB()
+	db, err := InitLvDB()
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	lvdb := new(lvDB.Lvdb)
+	lvdb := new(Lvdb)
 	rpc.Register(lvdb)
 	rpc.HandleHTTP()
 

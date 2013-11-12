@@ -42,17 +42,27 @@ func main() {
 		// defer client.Close()
 
 		for i := 0; i < 5000; i++ {
-			in := lvDB.Kv{
-				3, 4,
+			in := []lvDB.Kv{
+				{[]byte("aa"), []byte("44")},
+				{[]byte("bb"), []byte("89")},
 			}
-			var out bool
-			err = client.Call("Lvdb.Set", &in, &out)
+			var changedNum int
+			err = client.Call("Lvdb.Put", &in, &changedNum)
 			if err != nil {
 				fmt.Println("调用远程服务失败", err)
 			} else {
-				fmt.Println("远程服务返回结果：", out)
+				fmt.Println("远程服务返回结果：", changedNum)
 			}
-			//time.Sleep(time.Second)
+
+			aa := [][]byte{
+				[]byte("aa"),
+				[]byte("bb"),
+			}
+			var out [][]byte
+			err = client.Call("Lvdb.Get", aa, &out)
+			glog.Errorln(out, err)
+
+			time.Sleep(time.Second)
 		}
 	}
 
