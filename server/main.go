@@ -35,8 +35,6 @@ func main() {
 	}
 	defer db.Close()
 
-	//backup()
-
 	lvdb := new(Lvdb)
 	rpc.Register(lvdb)
 	rpc.HandleHTTP()

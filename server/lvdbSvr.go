@@ -2,22 +2,33 @@ package main
 
 import (
 	// "fmt"
+	"encoding/json"
 	"errors"
-	//"github.com/golang/glog"
+	"github.com/golang/glog"
 	"github.com/henyouqian/lvdb"
+	"github.com/robfig/cron"
 	"github.com/syndtr/goleveldb/leveldb"
+	"os"
 	"time"
 )
 
 var (
 	db *leveldb.DB
+	cf conf
 )
 
 type Lvdb int
 
 func InitLvDB() (*leveldb.DB, error) {
 	var err error
-	db, err = leveldb.OpenFile("db", nil)
+
+	if err = loadConf(); err != nil {
+		return nil, err
+	}
+
+	backupTask()
+
+	db, err = leveldb.OpenFile(cf.DbName, nil)
 	return db, err
 }
 
@@ -61,8 +72,31 @@ func (_ *Lvdb) Get(ks [][]byte, vs *[][]byte) error {
 	return nil
 }
 
+type conf struct {
+	DbName     string
+	BackupCron string
+}
+
+func loadConf() error {
+	var f *os.File
+	var err error
+
+	if f, err = os.Open("lvdb.conf"); err != nil {
+		return err
+	}
+
+	decoder := json.NewDecoder(f)
+	if err = decoder.Decode(&cf); err != nil {
+		return err
+	}
+
+	glog.Infof("%+v\n", cf)
+
+	return nil
+}
+
 func backup() error {
-	dbName := "db." + time.Now().Format(time.RFC3339)
+	dbName := "db." + time.Now().Format("2006-01-02T15-04-05Z07-00")
 	backupDb, err := leveldb.OpenFile(dbName, nil)
 	if err != nil {
 		return err
@@ -84,4 +118,10 @@ func backup() error {
 	}
 
 	return iter.Error()
+}
+
+func backupTask() {
+	c := cron.New()
+	c.AddFunc(cf.BackupCron, func() { backup() })
+	c.Start()
 }
