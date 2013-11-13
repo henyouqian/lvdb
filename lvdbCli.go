@@ -72,12 +72,30 @@ func (c *Client) Close() {
 	c.pool.Put(c)
 }
 
-func (c *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
-	err := c.client.Call(serviceMethod, args, reply)
+func (c *Client) Put(kvs ...Kv) error {
+	err := c.client.Call("Lvdb.Put", kvs, nil)
 	if err == rpc.ErrShutdown {
 		c.broken = true
 		return ErrClientBroken
 	}
-
 	return err
 }
+
+func (c *Client) Get(keys ...[]byte) (replys [][]byte, err error) {
+	err = c.client.Call("Lvdb.Get", keys, &replys)
+	if err == rpc.ErrShutdown {
+		c.broken = true
+		return nil, ErrClientBroken
+	}
+	return replys, err
+}
+
+//func (c *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
+//	err := c.client.Call(serviceMethod, args, reply)
+//	if err == rpc.ErrShutdown {
+//		c.broken = true
+//		return ErrClientBroken
+//	}
+
+//	return err
+//}

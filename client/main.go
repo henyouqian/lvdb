@@ -22,7 +22,6 @@ func main() {
 	f := func() {
 		for i := 0; i < 5000; i++ {
 			func() {
-
 				client, err := pool.Get()
 				if err != nil {
 					glog.Errorln(err)
@@ -37,7 +36,8 @@ func main() {
 				}
 
 				//var out int
-				err = client.Call("Lvdb.Put", in, nil)
+				err = client.Put(in)
+				//err = client.Call("Lvdb.Put", in, nil)
 				glog.Infoln(in, err)
 			}()
 
