@@ -90,6 +90,15 @@ func (c *Client) Get(keys ...[]byte) (replys [][]byte, err error) {
 	return replys, err
 }
 
+func (c *Client) Del(keys ...[]byte) error {
+	err := c.client.Call("Lvdb.Del", keys, nil)
+	if err == rpc.ErrShutdown {
+		c.broken = true
+		return ErrClientBroken
+	}
+	return err
+}
+
 //func (c *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
 //	err := c.client.Call(serviceMethod, args, reply)
 //	if err == rpc.ErrShutdown {

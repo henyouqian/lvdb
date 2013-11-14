@@ -33,7 +33,6 @@ func InitLvDB() (*leveldb.DB, error) {
 }
 
 func (_ *Lvdb) Put(kvs []lvDB.Kv, changedNum *int) error {
-	*changedNum = 0
 	n := len(kvs)
 	if n == 0 {
 		return errors.New("empty kvs")
@@ -67,8 +66,31 @@ func (_ *Lvdb) Get(ks [][]byte, vs *[][]byte) error {
 		} else {
 			*vs = append(*vs, v)
 		}
-
 	}
+	return nil
+}
+
+//fixme: db.Delete has no effect
+func (_ *Lvdb) Del(ks [][]byte, delNum *int) error {
+	n := len(ks)
+	if n == 0 {
+		return errors.New("empty keys")
+	}
+	if n == 1 {
+		k := ks[0]
+		if err := db.Delete(k, nil); err != nil {
+			return err
+		}
+	} else {
+		batch := new(leveldb.Batch)
+		for _, k := range ks {
+			batch.Delete(k)
+		}
+		if err := db.Write(batch, nil); err != nil {
+			return err
+		}
+	}
+	*delNum = n
 	return nil
 }
 

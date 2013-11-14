@@ -31,14 +31,17 @@ func main() {
 
 				rd := rand.Uint32()
 				bt, _ := json.Marshal(rd)
-				in := []lvDB.Kv{
-					{bt, bt},
-				}
+
+				bt = []byte("aa")
 
 				//var out int
-				err = client.Put(in)
+				err = client.Del(bt, bt)
+				glog.Infoln(err)
+
+				reply, err := client.Get(bt)
+
 				//err = client.Call("Lvdb.Put", in, nil)
-				glog.Infoln(in, err)
+				glog.Infoln(reply, err)
 			}()
 
 			time.Sleep(time.Second)
