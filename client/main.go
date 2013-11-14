@@ -34,6 +34,10 @@ func main() {
 
 				bt = []byte("aa")
 
+				//
+				err = client.Put(lvDB.Kv{bt, bt})
+				glog.Infoln(err)
+
 				//var out int
 				err = client.Del(bt, bt)
 				glog.Infoln(err)

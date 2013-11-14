@@ -70,7 +70,6 @@ func (_ *Lvdb) Get(ks [][]byte, vs *[][]byte) error {
 	return nil
 }
 
-//fixme: db.Delete has no effect
 func (_ *Lvdb) Del(ks [][]byte, delNum *int) error {
 	n := len(ks)
 	if n == 0 {
