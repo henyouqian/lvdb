@@ -99,6 +99,15 @@ func (c *Client) Del(keys ...[]byte) error {
 	return err
 }
 
+func (c *Client) Ping() error {
+	err := c.client.Call("Lvdb.Get", [][]byte{[]byte("")}, nil)
+	if err == rpc.ErrShutdown {
+		c.broken = true
+		return ErrClientBroken
+	}
+	return err
+}
+
 //func (c *Client) Call(serviceMethod string, args interface{}, reply interface{}) error {
 //	err := c.client.Call(serviceMethod, args, reply)
 //	if err == rpc.ErrShutdown {
